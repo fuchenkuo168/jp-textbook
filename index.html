@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 日本語教材書 | My Japanese Textbook</title>
+<style>
+:root {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border-primary: #1a1a1a;
+  --color-border-secondary: #d1d5db;
+  --color-border-tertiary: #e5e7eb;
+  --color-accent: #2563eb;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--color-text-primary); background: var(--color-bg-primary); line-height: 1.5; }
+ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
+
+.app { min-height: 100vh; }
+.hdr { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border-tertiary); background: var(--color-bg-primary); position: sticky; top: 0; z-index: 10; }
+.hdr-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 10px; }
+.logo { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+.logo small { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); margin-left: 10px; }
+.badge { font-size: 12px; padding: 4px 14px; border-radius: 20px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
+.nav { display: flex; gap: 6px; }
+.nb { font-size: 14px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.nb:hover { background: var(--color-bg-secondary); }
+.nb.active { background: var(--color-bg-secondary); border-color: var(--color-border-secondary); color: var(--color-text-primary); font-weight: 500; }
+
+.view { padding: 1.5rem; max-width: 1200px; margin: 0 auto; display: none; }
+.view.active { display: block; }
+
+.welcome { text-align: center; padding: 4rem 2rem; max-width: 600px; margin: 0 auto; }
+.welcome h2 { font-size: 28px; font-weight: 600; margin-bottom: 1rem; }
+.welcome p { font-size: 15px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 1.5rem; }
+.welcome-icon { font-size: 72px; margin-bottom: 2rem; opacity: 0.7; }
+.info-box { background: #eff6ff; border: 1px solid #93c5fd; border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem 0; text-align: left; }
+.info-box h3 { font-size: 16px; font-weight: 600; color: #1e40af; margin-bottom: 10px; }
+.info-box ol { margin-left: 1.5rem; font-size: 14px; color: #1e40af; line-height: 2; }
+.info-box li { margin-bottom: 8px; }
+
+.btn-primary { padding: 12px 28px; background: var(--color-text-primary); color: var(--color-bg-primary); border: none; border-radius: var(--radius-md); font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: opacity 0.2s; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { padding: 12px 28px; background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-secondary:hover { background: var(--color-bg-secondary); }
+
+.ugrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 1rem; }
+.uc { background: var(--color-bg-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; cursor: pointer; transition: all 0.25s; position: relative; }
+.uc:hover { border-color: var(--color-border-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.06); transform: translateY(-2px); }
+.uc .dt { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 6px; }
+.uc .ttl { font-size: 16px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+.uc .meta { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 10px; }
+.uc .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 14px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-tertiary); }
+.del { position: absolute; top: 12px; right: 12px; font-size: 14px; background: none; border: none; color: var(--color-text-tertiary); cursor: pointer; opacity: 0; padding: 6px; transition: opacity 0.2s; }
+.uc:hover .del { opacity: 1; }
+.del:hover { color: #dc2626; }
+
+.empty { text-align: center; padding: 5rem 2rem; color: var(--color-text-secondary); }
+.empty-icon { font-size: 56px; margin-bottom: 1.5rem; opacity: 0.4; }
+.empty p { font-size: 15px; line-height: 1.8; }
+
+.srch-bar { margin-bottom: 1.5rem; }
+.srch-bar input { width: 100%; padding: 12px 16px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); font-size: 15px; background: var(--color-bg-primary); color: var(--color-text-primary); }
+.srch-bar input:focus { outline: none; border-color: var(--color-accent); }
+
+.sr-item { padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--color-border-tertiary); margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+.sr-item:hover { border-color: var(--color-border-secondary); background: var(--color-bg-secondary); }
+.sr-unit { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.sr-match { font-size: 15px; line-height: 1.6; }
+.hl { background: #fef3c7; color: #92400e; padding: 2px 4px; border-radius: 3px; }
+
+.uhdr { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border-tertiary); }
+.back { font-size: 14px; color: var(--color-text-secondary); cursor: pointer; border: none; background: none; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: var(--radius-md); white-space: nowrap; transition: all 0.2s; }
+.back:hover { background: var(--color-bg-secondary); color: var(--color-text-primary); }
+.utitle { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+.umeta { font-size: 14px; color: var(--color-text-secondary); }
+
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 2rem; overflow-x: auto; }
+.tb { font-size: 15px; padding: 12px 18px; border: none; background: transparent; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: all 0.2s; }
+.tb:hover { color: var(--color-text-primary); }
+.tb.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); font-weight: 600; }
+
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.vc { background: var(--color-bg-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; }
+.vc .word { font-size: 26px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+.vc .rdg { font-size: 15px; color: var(--color-text-secondary); margin-bottom: 8px; }
+.vc .mng { font-size: 15px; margin: 10px 0; padding: 8px 12px; background: var(--color-bg-secondary); border-radius: var(--radius-md); }
+.lv { font-size: 12px; padding: 4px 12px; border-radius: 14px; display: inline-block; margin-bottom: 10px; font-weight: 600; }
+.n1 { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.n2 { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.n3 { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.abtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ab { font-size: 12px; padding: 5px 11px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
+.ab:hover { background: var(--color-bg-secondary); color: var(--color-text-primary); }
+.ex { background: var(--color-bg-secondary); border-radius: var(--radius-md); padding: 11px 13px; margin-top: 12px; font-size: 14px; line-height: 2; }
+.exl { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.note { font-size: 14px; color: var(--color-text-secondary); margin-top: 12px; padding: 10px 13px; background: var(--color-bg-secondary); border-left: 3px solid var(--color-border-secondary); line-height: 1.8; }
+
+.gc { background: var(--color-bg-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; margin-bottom: 16px; }
+.gc .pat { font-size: 20px; font-weight: 600; font-family: 'Courier New', monospace; background: var(--color-bg-secondary); padding: 8px 16px; border-radius: var(--radius-md); display: inline-block; margin-bottom: 12px; }
+.gc .exp { font-size: 15px; line-height: 1.9; margin-bottom: 12px; }
+
+.sum { background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 1.75rem; font-size: 17px; line-height: 2.3; margin-bottom: 1.5rem; }
+
+.msg { font-size: 15px; color: var(--color-text-secondary); padding: 1.25rem 1.5rem; background: var(--color-bg-secondary); border-radius: var(--radius-md); text-align: center; line-height: 1.8; }
+
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+.modal.show { display: flex; }
+.modal-content { background: var(--color-bg-primary); border-radius: var(--radius-lg); padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal-content h3 { font-size: 20px; font-weight: 600; margin-bottom: 1rem; }
+.modal-content textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); font-size: 13px; font-family: 'Courier New', monospace; resize: vertical; margin-bottom: 1rem; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<div class="app">
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">📚 日本語教材書 <small>My Japanese Textbook</small></div>
+    <div id="badge" class="badge">0 単元</div>
+  </div>
+  <div class="nav">
+    <button class="nb active" onclick="sv('home')" id="nav-home">🏠 首頁</button>
+    <button class="nb" onclick="sv('toc')" id="nav-toc">📚 目錄</button>
+    <button class="nb" onclick="sv('search')" id="nav-search">🔍 搜尋</button>
+  </div>
+</div>
+
+<div class="view active" id="view-home">
+  <div class="welcome">
+    <div class="welcome-icon">📚</div>
+    <h2>歡迎來到你的日文教材書</h2>
+    <p>這是你的專屬日文學習空間。所有用 Claude 生成的教材都會自動儲存在這裡，隨時可以查看、複習、測驗。</p>
+    
+    <div class="info-box">
+      <h3>📖 如何使用這個教材書</h3>
+      <ol>
+        <li><strong>生成教材：</strong>在 Claude 對話中貼上日文逐字稿，請 Claude 製作教材</li>
+        <li><strong>取得 JSON：</strong>Claude 會給你一段 JSON 格式的教材資料</li>
+        <li><strong>匯入資料：</strong>複製 JSON，回到這個網站點「匯入教材」貼上</li>
+        <li><strong>隨時複習：</strong>把這個網站加入書籤，隨時打開查看所有教材</li>
+      </ol>
+    </div>
+    
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:2rem;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="sv('toc');document.getElementById('nav-toc').classList.add('active')">📚 查看目錄</button>
+      <button class="btn-secondary" onclick="showImport()">📥 匯入教材</button>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="view-toc">
+  <div id="unit-grid" class="ugrid"></div>
+  <div id="empty-toc" class="empty">
+    <div class="empty-icon">📖</div>
+    <p>還沒有任何教材單元。<br>回到 Claude 對話生成教材，然後匯入到這裡！</p>
+    <button class="btn-primary" onclick="showImport()" style="margin-top:2rem">📥 匯入教材</button>
+  </div>
+</div>
+
+<div class="view" id="view-search">
+  <div class="srch-bar">
+    <input id="srch-in" type="text" placeholder="搜尋單字、讀音、文法、例句..." oninput="doSearch(this.value)"/>
+  </div>
+  <div id="srch-res">
+    <div class="msg">💡 輸入關鍵字即可搜尋全書所有單元的內容</div>
+  </div>
+</div>
+
+<div class="view" id="view-unit">
+  <div id="unit-content"></div>
+</div>
+</div>
+
+<div class="modal" id="import-modal">
+  <div class="modal-content">
+    <h3>📥 匯入教材 JSON</h3>
+    <p style="font-size:14px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7;">將 Claude 提供的教材 JSON 資料貼入下方：</p>
+    <textarea id="json-input" placeholder='{"title": "0504 廣告逐字稿", "date": "2026-05-04", ...}'></textarea>
+    <div id="import-error" style="font-size:14px;color:#dc2626;margin-bottom:1rem;display:none;"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="hideImport()">取消</button>
+      <button class="btn-primary" onclick="importData()">匯入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let units = [];
+
+async function init() {
+  try {
+    const r = await window.localStorage.getItem('jp-textbook-data');
+    if (r) units = JSON.parse(r);
+  } catch(e) { units = []; }
+  renderTOC();
+  updateBadge();
+}
+
+function save() {
+  try {
+    window.localStorage.setItem('jp-textbook-data', JSON.stringify(units));
+  } catch(e) {}
+}
+
+function updateBadge() {
+  document.getElementById('badge').textContent = units.length + ' 単元';
+}
+
+function sv(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+}
+
+function showImport() {
+  document.getElementById('import-modal').classList.add('show');
+  document.getElementById('json-input').value = '';
+  document.getElementById('import-error').style.display = 'none';
+}
+
+function hideImport() {
+  document.getElementById('import-modal').classList.remove('show');
+}
+
+function importData() {
+  const json = document.getElementById('json-input').value.trim();
+  const err = document.getElementById('import-error');
+  if (!json) {
+    err.textContent = '請貼入 JSON 資料';
+    err.style.display = 'block';
+    return;
+  }
+  try {
+    const data = JSON.parse(json);
+    if (!data.title) throw new Error('缺少 title 欄位');
+    units.unshift(data);
+    save();
+    renderTOC();
+    updateBadge();
+    hideImport();
+    alert('✅ 教材已匯入：' + data.title);
+    sv('toc');
+    document.getElementById('nav-toc').classList.add('active');
+  } catch(e) {
+    err.textContent = 'JSON 格式錯誤：' + e.message;
+    err.style.display = 'block';
+  }
+}
+
+function renderTOC() {
+  const g = document.getElementById('unit-grid');
+  const e = document.getElementById('empty-toc');
+  if (!units.length) {
+    g.innerHTML = '';
+    e.style.display = 'block';
+    return;
+  }
+  e.style.display = 'none';
+  g.innerHTML = units.map((u, i) => `
+    <div class="uc" onclick="openUnit(${i})">
+      <button class="del" onclick="event.stopPropagation();delUnit(${i})" title="刪除此單元">✕</button>
+      <div class="dt">${u.date || ''}</div>
+      <div class="ttl">${u.title}</div>
+      <div class="meta">${(u.vocabulary||[]).length} 個單字・${(u.grammar||[]).length} 個文法</div>
+      <div class="tags">${(u.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function delUnit(i) {
+  if (!confirm(`確定刪除「${units[i].title}」？`)) return;
+  units.splice(i, 1);
+  save();
+  renderTOC();
+  updateBadge();
+}
+
+function openUnit(i) {
+  const u = units[i];
+  document.getElementById('unit-content').innerHTML = `
+    <div class="uhdr">
+      <button class="back" onclick="sv('toc');document.getElementById('nav-toc').classList.add('active')">← 返回目錄</button>
+      <div style="flex:1">
+        <div class="utitle">${u.title}</div>
+        <div class="umeta">${u.date||''}${u.source?' · '+u.source:''}</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tb active" onclick="stab('vocab',this)">単語 (${(u.vocabulary||[]).length})</button>
+      <button class="tb" onclick="stab('grammar',this)">文法 (${(u.grammar||[]).length})</button>
+      <button class="tb" onclick="stab('summary',this)">日文摘要</button>
+      <button class="tb" onclick="stab('quiz',this)">測驗</button>
+    </div>
+    <div id="tab-vocab">${rVocab(u.vocabulary||[])}</div>
+    <div id="tab-grammar" style="display:none">${rGrammar(u.grammar||[])}</div>
+    <div id="tab-summary" style="display:none">${rSummary(u.summary||'',u.summaryReading||'')}</div>
+    <div id="tab-quiz" style="display:none"><div class="msg">測驗功能即將推出</div></div>`;
+  sv('unit');
+}
+
+function stab(n, btn) {
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['vocab','grammar','summary','quiz'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === n ? '' : 'none';
+  });
+}
+
+function speak(text, rate) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP';
+  u.rate = rate;
+  const v = window.speechSynthesis.getVoices().find(v => v.lang === 'ja-JP' || v.lang === 'ja');
+  if (v) u.voice = v;
+  window.speechSynthesis.speak(u);
+}
+
+function ab(t, r, l) {
+  const s = t.replace(/'/g, "\\'");
+  return `<button class="ab" onclick="speak('${s}',${r})">▶ ${l}</button>`;
+}
+
+function sa(t) {
+  return `<div class="abtns">${ab(t,1,'標準')}${ab(t,.75,'0.75x')}${ab(t,.6,'0.6x')}${ab(t,.5,'0.5x')}${ab(t,.45,'超スロー')}</div>`;
+}
+
+function rVocab(vocab) {
+  if (!vocab.length) return '<div class="msg">此單元尚無單字資料</div>';
+  return `<div class="vgrid">${vocab.map(v => `
+    <div class="vc">
+      <span class="lv ${(v.l||'').toLowerCase()}">${v.l||''}</span>
+      <div class="word">${v.kd||v.k}</div>
+      <div class="rdg">${v.r}</div>
+      <div class="mng">📌 ${v.m}</div>
+      <div class="abtns">${ab(v.r,1,'標準')}${ab(v.r,.7,'0.7x')}${ab(v.r,.5,'超スロー')}</div>
+      ${v.sd?`<div class="ex"><div class="exl">原文例句</div>${v.sd}${sa(v.st||v.sd)}</div>`:''}
+      ${v.ed?`<div class="ex"><div class="exl">擴充例句</div>${v.ed}${sa(v.et||v.ed)}</div>`:''}
+      ${v.n?`<div class="note">${v.n.replace(/\n/g,'<br>')}</div>`:''}
+    </div>`).join('')}</div>`;
+}
+
+function rGrammar(g) {
+  if (!g.length) return '<div class="msg">此單元尚無文法資料</div>';
+  return g.map(x => `<div class="gc"><div class="pat">${x.p}</div><div class="exp">${x.e.replace(/\n/g,'<br>')}</div>${x.ex?`<div class="ex">${x.ex}${sa(x.et||x.ex)}</div>`:''}</div>`).join('');
+}
+
+function rSummary(s, sr) {
+  if (!s) return '<div class="msg">此單元尚無摘要</div>';
+  return `<div class="sum">${s}</div>${sa(sr||s)}`;
+}
+
+function doSearch(q) {
+  const c = document.getElementById('srch-res');
+  if (!q.trim()) {
+    c.innerHTML = '<div class="msg">💡 輸入關鍵字即可搜尋全書所有單元的內容</div>';
+    return;
+  }
+  const res = [];
+  units.forEach((u, ui) => {
+    (u.vocabulary||[]).forEach(v => {
+      if ([v.k,v.r,v.m,v.sd,v.ed].some(s => (s||'').includes(q)))
+        res.push({unit:u.title, ui, text:`${v.k}（${v.r}）— ${v.m}`, type:'単語'});
+    });
+    (u.grammar||[]).forEach(g => {
+      if ((g.p+g.e).includes(q))
+        res.push({unit:u.title, ui, text:g.p, type:'文法'});
+    });
+  });
+  if (!res.length) {
+    c.innerHTML = '<div class="msg">找不到相關內容</div>';
+    return;
+  }
+  c.innerHTML = `<div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:14px">找到 ${res.length} 筆結果</div>` +
+    res.map(r => `<div class="sr-item" onclick="openUnit(${r.ui})">
+      <div class="sr-unit"><span class="tag">${r.type}</span> ${r.unit}</div>
+      <div class="sr-match">${r.text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'), m => `<span class="hl">${m}</span>`)}</div>
+    </div>`).join('');
+}
+
+init();
+</script>
+</body>
+</html>
