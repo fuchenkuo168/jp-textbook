@@ -112,6 +112,24 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 
 .msg { font-size: 15px; color: var(--color-text-secondary); padding: 1.25rem 1.5rem; background: var(--color-bg-secondary); border-radius: var(--radius-md); text-align: center; line-height: 1.8; }
 
+.qsec { margin-bottom: 2.5rem; }
+.qsec h3 { font-size: 17px; font-weight: 600; margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 1px solid var(--color-border-tertiary); }
+.qi { background: var(--color-bg-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 12px; }
+.qq { font-size: 15px; margin-bottom: 10px; line-height: 1.7; }
+.qi input, .qi textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); font-size: 14px; background: var(--color-bg-primary); color: var(--color-text-primary); margin-bottom: 8px; font-family: inherit; }
+.qi textarea { resize: vertical; min-height: 80px; }
+.qbtns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.qbtn { font-size: 13px; padding: 6px 14px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.2s; }
+.qbtn:hover { background: var(--color-bg-secondary); }
+.qbtn-primary { background: var(--color-text-primary); color: var(--color-bg-primary); border-color: var(--color-text-primary); }
+.qbtn-primary:hover { opacity: 0.9; }
+.hint-txt { font-size: 13px; color: var(--color-text-secondary); display: none; margin-top: 8px; padding: 8px 12px; background: #fef3c7; border-radius: var(--radius-md); border: 1px solid #fcd34d; }
+.result { margin-top: 10px; padding: 12px 14px; border-radius: var(--radius-md); font-size: 14px; line-height: 1.7; display: none; }
+.result.correct { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+.result.incorrect { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+.sub-all { margin-top: 1.25rem; width: 100%; padding: 12px; font-size: 15px; background: var(--color-text-primary); color: var(--color-bg-primary); border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 500; }
+.sub-all:hover { opacity: 0.9; }
+
 .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
 .modal.show { display: flex; }
 .modal-content { background: var(--color-bg-primary); border-radius: var(--radius-lg); padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
@@ -196,6 +214,7 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 
 <script>
 let units = [];
+let curUnit = null;
 
 async function init() {
   try {
@@ -273,7 +292,7 @@ function renderTOC() {
       <button class="del" onclick="event.stopPropagation();delUnit(${i})" title="刪除此單元">✕</button>
       <div class="dt">${u.date || ''}</div>
       <div class="ttl">${u.title}</div>
-      <div class="meta">${(u.vocabulary||[]).length} 個單字・${(u.grammar||[]).length} 個文法</div>
+      <div class="meta">${(u.vocabulary||[]).length} 個單字・${(u.grammar||[]).length} 個文法・${(u.quiz||{}).length||0} 題測驗</div>
       <div class="tags">${(u.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
     </div>`).join('');
 }
@@ -287,7 +306,9 @@ function delUnit(i) {
 }
 
 function openUnit(i) {
+  curUnit = i;
   const u = units[i];
+  const hasQuiz = u.quiz && (u.quiz.furigana || u.quiz.fill || u.quiz.translate || u.quiz.dialogue);
   document.getElementById('unit-content').innerHTML = `
     <div class="uhdr">
       <button class="back" onclick="sv('toc');document.getElementById('nav-toc').classList.add('active')">← 返回目錄</button>
@@ -300,12 +321,12 @@ function openUnit(i) {
       <button class="tb active" onclick="stab('vocab',this)">単語 (${(u.vocabulary||[]).length})</button>
       <button class="tb" onclick="stab('grammar',this)">文法 (${(u.grammar||[]).length})</button>
       <button class="tb" onclick="stab('summary',this)">日文摘要</button>
-      <button class="tb" onclick="stab('quiz',this)">測驗</button>
+      ${hasQuiz?`<button class="tb" onclick="stab('quiz',this)">測驗</button>`:''}
     </div>
     <div id="tab-vocab">${rVocab(u.vocabulary||[])}</div>
     <div id="tab-grammar" style="display:none">${rGrammar(u.grammar||[])}</div>
     <div id="tab-summary" style="display:none">${rSummary(u.summary||'',u.summaryReading||'')}</div>
-    <div id="tab-quiz" style="display:none"><div class="msg">測驗功能即將推出</div></div>`;
+    ${hasQuiz?`<div id="tab-quiz" style="display:none">${rQuiz(u.quiz||{})}</div>`:''}`;
   sv('unit');
 }
 
@@ -361,6 +382,177 @@ function rGrammar(g) {
 function rSummary(s, sr) {
   if (!s) return '<div class="msg">此單元尚無摘要</div>';
   return `<div class="sum">${s}</div>${sa(sr||s)}`;
+}
+
+function rQuiz(quiz) {
+  if (!quiz || (!quiz.furigana && !quiz.fill && !quiz.translate && !quiz.dialogue)) {
+    return '<div class="msg">此單元尚無測驗</div>';
+  }
+  let html = '';
+  
+  if (quiz.furigana && quiz.furigana.length) {
+    html += '<div class="qsec"><h3>A. 振り仮名填空 — 漢字の読み方を書いてください</h3>';
+    quiz.furigana.forEach((q, i) => {
+      html += `<div class="qi">
+        <div class="qq">${q.k} の読み方は？</div>
+        <input id="fa-${i}" placeholder="ひらがなで..." />
+        <div class="qbtns">
+          <button class="qbtn" onclick="showHint('fh-${i}','${(q.h||'').replace(/'/g,"\\'")}')">💡 提示</button>
+        </div>
+        <div class="hint-txt" id="fh-${i}"></div>
+        <div class="result" id="fr-${i}"></div>
+      </div>`;
+    });
+    html += '<button class="sub-all" onclick="checkFuri()">全部送出批改 ↗</button></div>';
+  }
+  
+  if (quiz.fill && quiz.fill.length) {
+    html += '<div class="qsec"><h3>B. 単語填空 — （　）に正しい単語を入れてください</h3>';
+    quiz.fill.forEach((q, i) => {
+      html += `<div class="qi">
+        <div class="qq">${q.q}</div>
+        <input id="fb-${i}" placeholder="単語を入力..." />
+        <div class="qbtns">
+          <button class="qbtn" onclick="showHint('fbh-${i}','${(q.h||'').replace(/'/g,"\\'")}')">💡 提示</button>
+        </div>
+        <div class="hint-txt" id="fbh-${i}"></div>
+        <div class="result" id="fbr-${i}"></div>
+      </div>`;
+    });
+    html += '<button class="sub-all" onclick="checkFill()">全部送出批改 ↗</button></div>';
+  }
+  
+  if (quiz.translate && quiz.translate.length) {
+    html += '<div class="qsec"><h3>C. 中翻日造句 — 中国語を日本語に訳してください</h3>';
+    quiz.translate.forEach((q, i) => {
+      html += `<div class="qi">
+        <div class="qq">🇹🇼 ${q.c}</div>
+        <textarea id="ft-${i}" placeholder="日本語で..." rows="2"></textarea>
+        <div class="qbtns">
+          <button class="qbtn qbtn-primary" onclick="checkOne('ft-${i}','ftr-${i}','${q.a.replace(/'/g,"\\'").replace(/\n/g,' ')}')">送出批改 ↗</button>
+          <button class="qbtn" onclick="showHint('fth-${i}','今日の文法パターンと助詞に注意しましょう')">💡 提示</button>
+        </div>
+        <div class="hint-txt" id="fth-${i}"></div>
+        <div class="result" id="ftr-${i}"></div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  
+  if (quiz.dialogue && quiz.dialogue.length) {
+    html += '<div class="qsec"><h3>D. 情境対話 — 自然な日本語で答えてください</h3>';
+    quiz.dialogue.forEach((q, i) => {
+      html += `<div class="qi">
+        <div class="qq" style="background:var(--color-bg-secondary);padding:10px;border-radius:var(--radius-md);margin-bottom:10px;font-size:13px;">📍 場面：${q.scene}</div>
+        <div class="qq">${q.q}</div>
+        <textarea id="fd-${i}" placeholder="自然な日本語で答えてください..." rows="3"></textarea>
+        <div class="qbtns">
+          <button class="qbtn qbtn-primary" onclick="checkDial('fd-${i}','fdr-${i}')">送出批改 ↗</button>
+          <button class="qbtn" onclick="showHint('fdh-${i}','${(q.h||'').replace(/'/g,"\\'")}')">💡 提示（Hint）</button>
+        </div>
+        <div class="hint-txt" id="fdh-${i}"></div>
+        <div class="result" id="fdr-${i}"></div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  
+  return html;
+}
+
+function showHint(id, txt) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.textContent = '💡 ' + txt;
+    el.style.display = 'block';
+  }
+}
+
+function checkFuri() {
+  const u = units[curUnit];
+  if (!u || !u.quiz || !u.quiz.furigana) return;
+  
+  u.quiz.furigana.forEach((q, i) => {
+    const input = document.getElementById('fa-' + i);
+    const result = document.getElementById('fr-' + i);
+    if (!input || !result) return;
+    
+    const ans = input.value.trim();
+    if (ans === q.a) {
+      result.className = 'result correct';
+      result.textContent = '✅ 正解！よくできました。';
+      result.style.display = 'block';
+    } else if (ans) {
+      result.className = 'result incorrect';
+      result.textContent = '❌ 惜しい！もう一度考えてみてください。ヒント：' + q.h;
+      result.style.display = 'block';
+    }
+  });
+}
+
+function checkFill() {
+  const u = units[curUnit];
+  if (!u || !u.quiz || !u.quiz.fill) return;
+  
+  u.quiz.fill.forEach((q, i) => {
+    const input = document.getElementById('fb-' + i);
+    const result = document.getElementById('fbr-' + i);
+    if (!input || !result) return;
+    
+    const ans = input.value.trim();
+    if (ans === q.a) {
+      result.className = 'result correct';
+      result.textContent = '✅ 正解！素晴らしい。';
+      result.style.display = 'block';
+    } else if (ans) {
+      result.className = 'result incorrect';
+      result.textContent = '❌ 不正解。ヒント：' + q.h;
+      result.style.display = 'block';
+    }
+  });
+}
+
+function checkOne(inputId, resultId, correctAns) {
+  const input = document.getElementById(inputId);
+  const result = document.getElementById(resultId);
+  if (!input || !result) return;
+  
+  const ans = input.value.trim();
+  if (!ans) {
+    result.className = 'result incorrect';
+    result.textContent = '⚠️ 回答を入力してください。';
+    result.style.display = 'block';
+    return;
+  }
+  
+  if (ans === correctAns) {
+    result.className = 'result correct';
+    result.innerHTML = '✅ 完璧です！<br><strong>正しい答え：</strong>' + correctAns;
+    result.style.display = 'block';
+    speak(correctAns, 0.9);
+  } else {
+    result.className = 'result incorrect';
+    result.textContent = '❌ 惜しいです。助詞や活用形をもう一度確認してみてください。';
+    result.style.display = 'block';
+  }
+}
+
+function checkDial(inputId, resultId) {
+  const input = document.getElementById(inputId);
+  const result = document.getElementById(resultId);
+  if (!input || !result) return;
+  
+  const ans = input.value.trim();
+  if (!ans) {
+    result.className = 'result incorrect';
+    result.textContent = '⚠️ 回答を入力してください。';
+    result.style.display = 'block';
+    return;
+  }
+  
+  result.className = 'result correct';
+  result.innerHTML = '📝 回答を確認しました。<br><strong>あなたの答え：</strong>' + ans + '<br><br>💡 もっと自然な表現や文法について知りたい場合は、Claude に聞いてみてください。';
+  result.style.display = 'block';
 }
 
 function doSearch(q) {
