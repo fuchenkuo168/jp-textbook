@@ -395,6 +395,9 @@ function rSummary(u) {
   if (u.summaryChinese) {
     html += `<div class="sumc"><strong>📖 中文翻譯</strong><br><br>${u.summaryChinese}</div>`;
   }
+  if (u.fullText) {
+    html += `<div class="article"><div class="article-title">📄 完整文章</div>${u.fullText}${sa(u.fullTextReading||u.fullText.replace(/<[^>]+>/g,''))}</div>`;
+  }
   return html;
 }
 
