@@ -29,7 +29,7 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 .logo { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
 .logo small { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); margin-left: 10px; }
 .badge { font-size: 12px; padding: 4px 14px; border-radius: 20px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-tertiary); color: var(--color-text-secondary); }
-.nav { display: flex; gap: 6px; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; }
 .nb { font-size: 14px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
 .nb:hover { background: var(--color-bg-secondary); }
 .nb.active { background: var(--color-bg-secondary); border-color: var(--color-border-secondary); color: var(--color-text-primary); font-weight: 500; }
@@ -77,7 +77,7 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 .sr-match { font-size: 15px; line-height: 1.6; }
 .hl { background: #fef3c7; color: #92400e; padding: 2px 4px; border-radius: 3px; }
 
-.uhdr { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border-tertiary); }
+.uhdr { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border-tertiary); flex-wrap: wrap; }
 .back { font-size: 14px; color: var(--color-text-secondary); cursor: pointer; border: none; background: none; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: var(--radius-md); white-space: nowrap; transition: all 0.2s; }
 .back:hover { background: var(--color-bg-secondary); color: var(--color-text-primary); }
 .utitle { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
@@ -97,18 +97,21 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 .n1 { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 .n2 { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 .n3 { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.n4 { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 .abtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ab { font-size: 12px; padding: 5px 11px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
 .ab:hover { background: var(--color-bg-secondary); color: var(--color-text-primary); }
 .ex { background: var(--color-bg-secondary); border-radius: var(--radius-md); padding: 11px 13px; margin-top: 12px; font-size: 14px; line-height: 2; }
 .exl { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-.note { font-size: 14px; color: var(--color-text-secondary); margin-top: 12px; padding: 10px 13px; background: var(--color-bg-secondary); border-left: 3px solid var(--color-border-secondary); line-height: 1.8; }
+.exc { font-size: 13px; color: var(--color-text-secondary); margin-top: 6px; font-style: italic; }
+.note { font-size: 14px; color: var(--color-text-secondary); margin-top: 12px; padding: 10px 13px; background: var(--color-bg-secondary); border-left: 3px solid var(--color-border-secondary); line-height: 1.8; white-space: pre-wrap; }
 
 .gc { background: var(--color-bg-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; margin-bottom: 16px; }
 .gc .pat { font-size: 20px; font-weight: 600; font-family: 'Courier New', monospace; background: var(--color-bg-secondary); padding: 8px 16px; border-radius: var(--radius-md); display: inline-block; margin-bottom: 12px; }
-.gc .exp { font-size: 15px; line-height: 1.9; margin-bottom: 12px; }
+.gc .exp { font-size: 15px; line-height: 1.9; margin-bottom: 12px; white-space: pre-wrap; }
 
-.sum { background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 1.75rem; font-size: 17px; line-height: 2.3; margin-bottom: 1.5rem; }
+.sum { background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: 1.75rem; font-size: 17px; line-height: 2.3; margin-bottom: 1rem; }
+.sumc { background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-lg); padding: 1.5rem; font-size: 15px; line-height: 2; margin-bottom: 1.5rem; color: #166534; }
 
 .msg { font-size: 15px; color: var(--color-text-secondary); padding: 1.25rem 1.5rem; background: var(--color-bg-secondary); border-radius: var(--radius-md); text-align: center; line-height: 1.8; }
 
@@ -122,7 +125,7 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 .qbtn { font-size: 13px; padding: 6px 14px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.2s; }
 .qbtn:hover { background: var(--color-bg-secondary); }
 .qbtn-primary { background: var(--color-text-primary); color: var(--color-bg-primary); border-color: var(--color-text-primary); }
-.qbtn-primary:hover { opacity: 0.9; }
+.qbtn-primary:hover { opacity: 0.9; background: var(--color-text-primary); }
 .hint-txt { font-size: 13px; color: var(--color-text-secondary); display: none; margin-top: 8px; padding: 8px 12px; background: #fef3c7; border-radius: var(--radius-md); border: 1px solid #fcd34d; }
 .result { margin-top: 10px; padding: 12px 14px; border-radius: var(--radius-md); font-size: 14px; line-height: 1.7; display: none; }
 .result.correct { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
@@ -130,12 +133,19 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
 .sub-all { margin-top: 1.25rem; width: 100%; padding: 12px; font-size: 15px; background: var(--color-text-primary); color: var(--color-bg-primary); border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 500; }
 .sub-all:hover { opacity: 0.9; }
 
-.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
 .modal.show { display: flex; }
-.modal-content { background: var(--color-bg-primary); border-radius: var(--radius-lg); padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal-content { background: var(--color-bg-primary); border-radius: var(--radius-lg); padding: 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
 .modal-content h3 { font-size: 20px; font-weight: 600; margin-bottom: 1rem; }
 .modal-content textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid var(--color-border-secondary); border-radius: var(--radius-md); font-size: 13px; font-family: 'Courier New', monospace; resize: vertical; margin-bottom: 1rem; }
-.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+@media (max-width: 768px) {
+  .vgrid { grid-template-columns: 1fr; }
+  .ugrid { grid-template-columns: 1fr; }
+  .logo { font-size: 18px; }
+  .logo small { display: block; margin-left: 0; margin-top: 4px; }
+}
 </style>
 </head>
 <body>
@@ -203,7 +213,7 @@ ruby rt { font-size: 0.55em; color: var(--color-text-secondary); }
   <div class="modal-content">
     <h3>📥 匯入教材 JSON</h3>
     <p style="font-size:14px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7;">將 Claude 提供的教材 JSON 資料貼入下方：</p>
-    <textarea id="json-input" placeholder='{"title": "0504 廣告逐字稿", "date": "2026-05-04", ...}'></textarea>
+    <textarea id="json-input" placeholder='{"title": "群馬護照新聞", "date": "2026-05-16", ...}'></textarea>
     <div id="import-error" style="font-size:14px;color:#dc2626;margin-bottom:1rem;display:none;"></div>
     <div class="modal-btns">
       <button class="btn-secondary" onclick="hideImport()">取消</button>
@@ -218,7 +228,7 @@ let curUnit = null;
 
 async function init() {
   try {
-    const r = await window.localStorage.getItem('jp-textbook-data');
+    const r = window.localStorage.getItem('jp-textbook-data');
     if (r) units = JSON.parse(r);
   } catch(e) { units = []; }
   renderTOC();
@@ -292,7 +302,7 @@ function renderTOC() {
       <button class="del" onclick="event.stopPropagation();delUnit(${i})" title="刪除此單元">✕</button>
       <div class="dt">${u.date || ''}</div>
       <div class="ttl">${u.title}</div>
-      <div class="meta">${(u.vocabulary||[]).length} 個單字・${(u.grammar||[]).length} 個文法・${(u.quiz||{}).length||0} 題測驗</div>
+      <div class="meta">${(u.vocabulary||[]).length} 個單字・${(u.grammar||[]).length} 個文法${u.quiz?' ・測驗':''}</div>
       <div class="tags">${(u.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
     </div>`).join('');
 }
@@ -325,7 +335,7 @@ function openUnit(i) {
     </div>
     <div id="tab-vocab">${rVocab(u.vocabulary||[])}</div>
     <div id="tab-grammar" style="display:none">${rGrammar(u.grammar||[])}</div>
-    <div id="tab-summary" style="display:none">${rSummary(u.summary||'',u.summaryReading||'')}</div>
+    <div id="tab-summary" style="display:none">${rSummary(u)}</div>
     ${hasQuiz?`<div id="tab-quiz" style="display:none">${rQuiz(u.quiz||{})}</div>`:''}`;
   sv('unit');
 }
@@ -351,7 +361,7 @@ function speak(text, rate) {
 }
 
 function ab(t, r, l) {
-  const s = t.replace(/'/g, "\\'");
+  const s = t.replace(/'/g, "\\'").replace(/\n/g, ' ');
   return `<button class="ab" onclick="speak('${s}',${r})">▶ ${l}</button>`;
 }
 
@@ -368,20 +378,24 @@ function rVocab(vocab) {
       <div class="rdg">${v.r}</div>
       <div class="mng">📌 ${v.m}</div>
       <div class="abtns">${ab(v.r,1,'標準')}${ab(v.r,.7,'0.7x')}${ab(v.r,.5,'超スロー')}</div>
-      ${v.sd?`<div class="ex"><div class="exl">原文例句</div>${v.sd}${sa(v.st||v.sd)}</div>`:''}
-      ${v.ed?`<div class="ex"><div class="exl">擴充例句</div>${v.ed}${sa(v.et||v.ed)}</div>`:''}
-      ${v.n?`<div class="note">${v.n.replace(/\n/g,'<br>')}</div>`:''}
+      ${v.sd?`<div class="ex"><div class="exl">原文例句</div>${v.sd}${v.sc?`<div class="exc">💬 ${v.sc}</div>`:''}${sa(v.st||v.sd)}</div>`:''}
+      ${v.ed?`<div class="ex"><div class="exl">擴充例句</div>${v.ed}${v.ec?`<div class="exc">💬 ${v.ec}</div>`:''}${sa(v.et||v.ed)}</div>`:''}
+      ${v.n?`<div class="note">${v.n}</div>`:''}
     </div>`).join('')}</div>`;
 }
 
 function rGrammar(g) {
   if (!g.length) return '<div class="msg">此單元尚無文法資料</div>';
-  return g.map(x => `<div class="gc"><div class="pat">${x.p}</div><div class="exp">${x.e.replace(/\n/g,'<br>')}</div>${x.ex?`<div class="ex">${x.ex}${sa(x.et||x.ex)}</div>`:''}</div>`).join('');
+  return g.map(x => `<div class="gc"><div class="pat">${x.p}</div><div class="exp">${x.e}</div>${x.ex?`<div class="ex">${x.ex}${sa(x.et||x.ex)}</div>`:''}</div>`).join('');
 }
 
-function rSummary(s, sr) {
-  if (!s) return '<div class="msg">此單元尚無摘要</div>';
-  return `<div class="sum">${s}</div>${sa(sr||s)}`;
+function rSummary(u) {
+  if (!u.summary) return '<div class="msg">此單元尚無摘要</div>';
+  let html = `<div class="sum">${u.summary}</div>${sa(u.summaryReading||u.summary)}`;
+  if (u.summaryChinese) {
+    html += `<div class="sumc"><strong>📖 中文翻譯</strong><br><br>${u.summaryChinese}</div>`;
+  }
+  return html;
 }
 
 function rQuiz(quiz) {
@@ -564,7 +578,7 @@ function doSearch(q) {
   const res = [];
   units.forEach((u, ui) => {
     (u.vocabulary||[]).forEach(v => {
-      if ([v.k,v.r,v.m,v.sd,v.ed].some(s => (s||'').includes(q)))
+      if ([v.k,v.r,v.m,v.sd,v.ed,v.sc,v.ec].some(s => (s||'').includes(q)))
         res.push({unit:u.title, ui, text:`${v.k}（${v.r}）— ${v.m}`, type:'単語'});
     });
     (u.grammar||[]).forEach(g => {
