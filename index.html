@@ -402,17 +402,27 @@ function rSummary(u) {
     html += `<div class="sumc"><strong>📖 中文翻譯</strong><br><br>${u.summaryChinese}</div>`;
   }
   if (u.fullText) {
-    const fullTextReading = u.fullTextReading || u.fullText.replace(/<[^>]+>/g,'');
-    const paragraphs = u.fullTextParagraphs || [fullTextReading];
-    html += `<div class="article"><div class="article-title">📄 完整文章</div>${u.fullText}`;
-    html += `<div style="margin-top:1rem"><strong>🔊 播放選項：</strong></div>`;
-    html += sa(fullTextReading);
-    if (paragraphs.length > 1) {
-      html += `<div style="margin-top:1rem"><strong>📍 分段播放：</strong></div>`;
-      paragraphs.forEach((p, i) => {
-        html += `<div style="margin-top:0.5rem;font-size:13px;color:var(--c-txt2)">第${i+1}段${sa(p)}</div>`;
+    html += `<div class="article"><div class="article-title">📄 完整文章</div>`;
+    
+    // 如果有分段，顯示分段內容 + 播放按鈕
+    if (u.fullTextParagraphs && u.fullTextParagraphs.length > 1) {
+      const fullTextWithRuby = u.fullText.split('<br><br>');
+      u.fullTextParagraphs.forEach((p, i) => {
+        const paragraphHTML = fullTextWithRuby[i] || '';
+        html += `<div style="margin-bottom:1.5rem">`;
+        html += `<div style="margin-bottom:0.5rem">${paragraphHTML}</div>`;
+        html += `<div style="font-size:12px;color:var(--c-txt2);margin-bottom:0.25rem">🔊 第${i+1}段播放：</div>`;
+        html += sa(p);
+        html += `</div>`;
       });
+    } else {
+      // 沒有分段，顯示完整文章
+      html += u.fullText;
+      const fullTextReading = u.fullTextReading || u.fullText.replace(/<[^>]+>/g,'');
+      html += `<div style="margin-top:1rem"><strong>🔊 播放選項：</strong></div>`;
+      html += sa(fullTextReading);
     }
+    
     html += `</div>`;
   }
   return html;
