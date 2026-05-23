@@ -366,7 +366,13 @@ function ab(t, r, l) {
 }
 
 function sa(t) {
-  return `<div class="abtns">${ab(t,1,'標準')}${ab(t,.75,'0.75x')}${ab(t,.6,'0.6x')}${ab(t,.5,'0.5x')}${ab(t,.45,'超スロー')}</div>`;
+  return `<div class="abtns">${ab(t,1,'標準')}${ab(t,.75,'0.75x')}${ab(t,.6,'0.6x')}${ab(t,.5,'0.5x')}${ab(t,.45,'超スロー')}<button class="ab" onclick="stopSpeak()" style="color:#dc2626">⏹ 停止</button></div>`;
+}
+
+function stopSpeak() {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
 }
 
 function rVocab(vocab) {
@@ -396,7 +402,18 @@ function rSummary(u) {
     html += `<div class="sumc"><strong>📖 中文翻譯</strong><br><br>${u.summaryChinese}</div>`;
   }
   if (u.fullText) {
-    html += `<div class="article"><div class="article-title">📄 完整文章</div>${u.fullText}${sa(u.fullTextReading||u.fullText.replace(/<[^>]+>/g,''))}</div>`;
+    const fullTextReading = u.fullTextReading || u.fullText.replace(/<[^>]+>/g,'');
+    const paragraphs = u.fullTextParagraphs || [fullTextReading];
+    html += `<div class="article"><div class="article-title">📄 完整文章</div>${u.fullText}`;
+    html += `<div style="margin-top:1rem"><strong>🔊 播放選項：</strong></div>`;
+    html += sa(fullTextReading);
+    if (paragraphs.length > 1) {
+      html += `<div style="margin-top:1rem"><strong>📍 分段播放：</strong></div>`;
+      paragraphs.forEach((p, i) => {
+        html += `<div style="margin-top:0.5rem;font-size:13px;color:var(--c-txt2)">第${i+1}段${sa(p)}</div>`;
+      });
+    }
+    html += `</div>`;
   }
   return html;
 }
