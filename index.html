@@ -808,53 +808,34 @@ function doSearch(q) {
 
 function doVizBtn(btn) {
   const text = btn.getAttribute('data-text');
+  if (!text) { alert('找不到文字內容'); return; }
+  const msg = '請用繁體中文幫我圖解這段日文的語法結構：\n\n「' + text + '」\n\n請按以下格式回答：\n【句子結構】把句子拆成各個成分（主語、述語、修飾語等），標上語法角色\n【成分說明】每個成分的中文意思和語法說明\n【全句翻譯】自然的中文翻譯\n【重點語法】這句用到的重要文法';
+  
+  // 顯示提示並複製到剪貼板
   const pid = btn.id.replace('vizbtn_','');
-  doViz(btn.id, 'vizarea_'+pid, text);
+  const area = document.getElementById('vizarea_' + pid);
+  if (area) {
+    area.style.display = 'block';
+    area.innerHTML = '<div style="padding:10px;background:var(--c-bg2);border-radius:var(--r);font-size:13px;line-height:1.8;color:var(--c-txt2)">💡 請把以下訊息貼到 Claude 對話框：<br><br><div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--r);padding:10px;font-size:12px;cursor:pointer;color:var(--c-txt)" onclick="copyViz(this)" title="點擊複製">' + msg.replace(/\n/g,'<br>') + '<br><br>📋 點此複製</div></div>';
+  }
 }
 
-async function doViz(btnId, areaId, text) {
-  const btn = document.getElementById(btnId);
-  const area = document.getElementById(areaId);
-  if (!btn || !area) return;
-  btn.textContent = '⏳ 分析中...';
-  btn.disabled = true;
-  area.style.display = 'block';
-  area.innerHTML = '<span style="color:var(--c-txt2)">正在分析句子結構，請稍候...</span>';
-
-  const prompt = `請用繁體中文，針對以下日文句子做詳細的語法圖解分析。
-
-句子：「${text}」
-
-請按以下格式回答：
-【句子結構】把句子拆成各個成分（主語、述語、修飾語等），每個成分標上語法角色
-【成分說明】每個成分的中文意思和語法說明
-【全句翻譯】自然的中文翻譯
-【重點語法】這句話用到的重要文法
-
-請用清楚的格式，讓N2學習者容易理解。`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const result = (data.content?.[0]?.text || '無法取得分析結果')
-      .replace(/\n/g, '<br>')
-      .replace(/【(.+?)】/g, '<strong style="color:var(--c-txt)">【$1】</strong>');
-    area.innerHTML = result;
-    btn.textContent = '📊 重新分析';
-    btn.disabled = false;
-  } catch(e) {
-    area.innerHTML = '<span style="color:#dc2626">⚠️ 分析失敗，請稍後再試。</span>';
-    btn.textContent = '📊 視覺化圖解這段';
-    btn.disabled = false;
-  }
+function copyViz(el) {
+  const text = el.innerText.replace('📋 點此複製','').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    el.style.background = '#dcfce7';
+    el.innerHTML = '✅ 已複製！請貼到 Claude 對話框';
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    el.style.background = '#dcfce7';
+    el.innerHTML = '✅ 已複製！請貼到 Claude 對話框';
+  });
 }
 
 async function sendVizPrompt(btn, text) {
