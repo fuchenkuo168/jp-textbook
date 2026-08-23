@@ -284,44 +284,106 @@ function stab(n, btn) {
 }
 
 // ── 音檔播放 ──
+// 語音清單初始化
+let _jaVoice = null;
+function initVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  _jaVoice = voices.find(v => v.lang === 'ja-JP') ||
+             voices.find(v => v.lang === 'ja') ||
+             voices.find(v => v.lang.startsWith('ja'));
+}
+if (window.speechSynthesis.onvoiceschanged !== undefined) {
+  window.speechSynthesis.onvoiceschanged = initVoice;
+}
+setTimeout(initVoice, 500);
+
+let _speakTimer = null;
+
 function speak(text, rate) {
   rate = parseFloat(rate);
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  
-  // 語音清單載入後再播放（解決Chrome首次無法播放問題）
-  const voices = window.speechSynthesis.getVoices();
-  doSpeak(text, rate, voices);
+  if (_speakTimer) { clearTimeout(_speakTimer); _speakTimer = null; }
+
+  if (rate >= 0.8) {
+    // 標準速度：直接播放
+    _speakOne(text, rate);
+  } else if (rate >= 0.55) {
+    // 中速：分句播放（以句點、逗點分段）
+    _speakByChunk(text, rate);
+  } else {
+    // 慢速：逐詞播放（以2-3個字為單位）
+    _speakByWord(text, rate);
+  }
 }
 
-function doSpeak(text, rate, voices) {
+function _getVoice() {
+  if (_jaVoice) return _jaVoice;
+  initVoice();
+  return _jaVoice;
+}
+
+function _speakOne(text, rate) {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'ja-JP';
   u.rate = rate;
-  
-  // 優先選日文語音
-  const jaVoice = voices.find(v => v.lang === 'ja-JP') || 
-                  voices.find(v => v.lang === 'ja') ||
-                  voices.find(v => v.lang.startsWith('ja'));
-  if (jaVoice) u.voice = jaVoice;
-  
-  // 不同速度調整 pitch 輔助（讓慢速更明顯）
-  if (rate <= 0.3) {
-    u.pitch = 0.9;
-  } else if (rate <= 0.5) {
-    u.pitch = 0.95;
-  } else {
-    u.pitch = 1.0;
-  }
-  
+  const v = _getVoice();
+  if (v) u.voice = v;
   window.speechSynthesis.speak(u);
 }
 
-// 語音清單變化時重新載入（解決Chrome延遲問題）
-if (window.speechSynthesis.onvoiceschanged !== undefined) {
-  window.speechSynthesis.onvoiceschanged = function() {
-    window.speechSynthesis.getVoices();
-  };
+function _speakByChunk(text, rate) {
+  // 以句點、逗點、読点分段
+  const chunks = text.split(/([。、！？　])/).filter(s => s.trim());
+  let groups = [];
+  let current = '';
+  for (let c of chunks) {
+    current += c;
+    if (/[。！？]/.test(c) || current.length > 15) {
+      groups.push(current.trim());
+      current = '';
+    }
+  }
+  if (current.trim()) groups.push(current.trim());
+  if (!groups.length) groups = [text];
+
+  const gap = Math.round((1.2 - rate) * 800); // 速度越慢停頓越長
+  let i = 0;
+  function next() {
+    if (i >= groups.length || !window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(groups[i]);
+    u.lang = 'ja-JP';
+    u.rate = Math.min(rate + 0.1, 0.85); // chunk播放稍快一點
+    const v = _getVoice();
+    if (v) u.voice = v;
+    u.onend = () => { i++; _speakTimer = setTimeout(next, gap); };
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+
+function _speakByWord(text, rate) {
+  // 逐字播放：每2-4個字切一段，停頓根據速度決定
+  const step = rate <= 0.25 ? 2 : 3;
+  const chars = [...text].filter(c => c.trim());
+  const words = [];
+  for (let i = 0; i < chars.length; i += step) {
+    words.push(chars.slice(i, i + step).join(''));
+  }
+  
+  const gap = rate <= 0.25 ? 900 : 550; // 超スロー停頓更長
+  let i = 0;
+  function next() {
+    if (i >= words.length || !window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(words[i]);
+    u.lang = 'ja-JP';
+    u.rate = 0.9; // 每個chunk本身正常速度播，靠停頓製造慢速感
+    const v = _getVoice();
+    if (v) u.voice = v;
+    u.onend = () => { i++; _speakTimer = setTimeout(next, gap); };
+    window.speechSynthesis.speak(u);
+  }
+  next();
 }
 
 function stopSpeak() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
