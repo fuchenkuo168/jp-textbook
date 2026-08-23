@@ -552,7 +552,7 @@ function rSummary(u) {
           <div class="para-label">🔊 第${i+1}段播放：</div>
           ${sa(p)}
           <div class="viz-bar">
-            <button class="viz-btn" id="vizbtn_${pid}" onclick="doViz('vizbtn_${pid}','vizarea_${pid}',pEsc)">📊 視覺化圖解這段</button>
+            <button class="viz-btn" id="vizbtn_${pid}" data-text="${pEsc}" onclick="doVizBtn(this)">📊 視覺化圖解這段</button>
             <div class="viz-area" id="vizarea_${pid}" style="display:none"></div>
           </div>
           <div class="mic-block">
@@ -804,6 +804,12 @@ function doSearch(q) {
       <div class="sr-unit"><span class="tag">${r.type}</span> ${r.unit}</div>
       <div>${r.text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<span class="hl">${m}</span>`)}</div>
     </div>`).join('');
+}
+
+function doVizBtn(btn) {
+  const text = btn.getAttribute('data-text');
+  const pid = btn.id.replace('vizbtn_','');
+  doViz(btn.id, 'vizarea_'+pid, text);
 }
 
 async function doViz(btnId, areaId, text) {
