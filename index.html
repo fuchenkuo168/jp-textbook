@@ -285,13 +285,43 @@ function stab(n, btn) {
 
 // ── 音檔播放 ──
 function speak(text, rate) {
+  rate = parseFloat(rate);
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
+  
+  // 語音清單載入後再播放（解決Chrome首次無法播放問題）
+  const voices = window.speechSynthesis.getVoices();
+  doSpeak(text, rate, voices);
+}
+
+function doSpeak(text, rate, voices) {
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ja-JP'; u.rate = rate;
-  const v = window.speechSynthesis.getVoices().find(v => v.lang==='ja-JP'||v.lang==='ja');
-  if (v) u.voice = v;
+  u.lang = 'ja-JP';
+  u.rate = rate;
+  
+  // 優先選日文語音
+  const jaVoice = voices.find(v => v.lang === 'ja-JP') || 
+                  voices.find(v => v.lang === 'ja') ||
+                  voices.find(v => v.lang.startsWith('ja'));
+  if (jaVoice) u.voice = jaVoice;
+  
+  // 不同速度調整 pitch 輔助（讓慢速更明顯）
+  if (rate <= 0.3) {
+    u.pitch = 0.9;
+  } else if (rate <= 0.5) {
+    u.pitch = 0.95;
+  } else {
+    u.pitch = 1.0;
+  }
+  
   window.speechSynthesis.speak(u);
+}
+
+// 語音清單變化時重新載入（解決Chrome延遲問題）
+if (window.speechSynthesis.onvoiceschanged !== undefined) {
+  window.speechSynthesis.onvoiceschanged = function() {
+    window.speechSynthesis.getVoices();
+  };
 }
 
 function stopSpeak() { if (window.speechSynthesis) window.speechSynthesis.cancel(); }
@@ -303,7 +333,7 @@ function ab(t, r, l) {
 
 function sa(t) {
   if (!t) return '';
-  return `<div class="abtns">${ab(t,1,'標準')}${ab(t,.75,'0.75x')}${ab(t,.6,'0.6x')}${ab(t,.5,'0.5x')}${ab(t,.45,'超スロー')}<button class="ab ab-stop" onclick="stopSpeak()">⏹ 停止</button></div>`;
+  return `<div class="abtns">${ab(t,1.0,'標準')}${ab(t,0.7,'0.7x')}${ab(t,0.5,'0.5x')}${ab(t,0.35,'0.35x')}${ab(t,0.2,'超スロー')}<button class="ab ab-stop" onclick="stopSpeak()">⏹ 停止</button></div>`;
 }
 
 // ── 麥克風錄音 ──
