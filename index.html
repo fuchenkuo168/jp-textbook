@@ -546,10 +546,15 @@ function rSummary(u) {
       paragraphs.forEach((p, i) => {
         const paraHtml = htmlParas[i] || '';
         const pid = 'para_' + i;
+        const pEsc = p.replace(/'/g,"\\'").replace(/\n/g,' ');
         html += `<div class="para-block">
           <div class="para-text">${paraHtml}</div>
           <div class="para-label">🔊 第${i+1}段播放：</div>
           ${sa(p)}
+          <div class="viz-bar">
+            <button class="viz-btn" id="vizbtn_${pid}" onclick="doViz('vizbtn_${pid}','vizarea_${pid}',pEsc)">📊 視覺化圖解這段</button>
+            <div class="viz-area" id="vizarea_${pid}" style="display:none"></div>
+          </div>
           <div class="mic-block">
             <div class="mic-label">🎤 朗讀練習 — 說完這段後點「停止」取得發音建議</div>
             <div class="mic-btns">
@@ -799,6 +804,51 @@ function doSearch(q) {
       <div class="sr-unit"><span class="tag">${r.type}</span> ${r.unit}</div>
       <div>${r.text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<span class="hl">${m}</span>`)}</div>
     </div>`).join('');
+}
+
+async function doViz(btnId, areaId, text) {
+  const btn = document.getElementById(btnId);
+  const area = document.getElementById(areaId);
+  if (!btn || !area) return;
+  btn.textContent = '⏳ 分析中...';
+  btn.disabled = true;
+  area.style.display = 'block';
+  area.innerHTML = '<span style="color:var(--c-txt2)">正在分析句子結構，請稍候...</span>';
+
+  const prompt = `請用繁體中文，針對以下日文句子做詳細的語法圖解分析。
+
+句子：「${text}」
+
+請按以下格式回答：
+【句子結構】把句子拆成各個成分（主語、述語、修飾語等），每個成分標上語法角色
+【成分說明】每個成分的中文意思和語法說明
+【全句翻譯】自然的中文翻譯
+【重點語法】這句話用到的重要文法
+
+請用清楚的格式，讓N2學習者容易理解。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const result = (data.content?.[0]?.text || '無法取得分析結果')
+      .replace(/\n/g, '<br>')
+      .replace(/【(.+?)】/g, '<strong style="color:var(--c-txt)">【$1】</strong>');
+    area.innerHTML = result;
+    btn.textContent = '📊 重新分析';
+    btn.disabled = false;
+  } catch(e) {
+    area.innerHTML = '<span style="color:#dc2626">⚠️ 分析失敗，請稍後再試。</span>';
+    btn.textContent = '📊 視覺化圖解這段';
+    btn.disabled = false;
+  }
 }
 
 async function sendVizPrompt(btn, text) {
