@@ -809,33 +809,20 @@ function doSearch(q) {
 function doVizBtn(btn) {
   const text = btn.getAttribute('data-text');
   if (!text) { alert('找不到文字內容'); return; }
-  const msg = '請用繁體中文幫我圖解這段日文的語法結構：\n\n「' + text + '」\n\n請按以下格式回答：\n【句子結構】把句子拆成各個成分（主語、述語、修飾語等），標上語法角色\n【成分說明】每個成分的中文意思和語法說明\n【全句翻譯】自然的中文翻譯\n【重點語法】這句用到的重要文法';
   
-  // 顯示提示並複製到剪貼板
+  const msg = '請用繁體中文幫我視覺化圖解這段日文的語法結構：\n\n「' + text + '」\n\n請按以下格式回答：\n【句子結構】把句子拆成各個成分（主語、述語、修飾語等），標上語法角色\n【成分說明】每個成分的中文意思和語法說明\n【全句翻譯】自然的中文翻譯\n【重點語法】這句用到的重要文法';
+
+  // 直接開新視窗到 Claude，帶入分析請求
+  const url = 'https://claude.ai/new?q=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  
+  // 同時在網頁上顯示提示
   const pid = btn.id.replace('vizbtn_','');
   const area = document.getElementById('vizarea_' + pid);
   if (area) {
     area.style.display = 'block';
-    area.innerHTML = '<div style="padding:10px;background:var(--c-bg2);border-radius:var(--r);font-size:13px;line-height:1.8;color:var(--c-txt2)">💡 請把以下訊息貼到 Claude 對話框：<br><br><div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--r);padding:10px;font-size:12px;cursor:pointer;color:var(--c-txt)" onclick="copyViz(this)" title="點擊複製">' + msg.replace(/\n/g,'<br>') + '<br><br>📋 點此複製</div></div>';
+    area.innerHTML = '<div style="padding:10px 12px;background:#eff6ff;border:1px solid #93c5fd;border-radius:var(--r);font-size:13px;color:#1e40af;line-height:1.8">✅ 已開啟 Claude 新視窗！<br>分析結果會在新視窗顯示。</div>';
   }
-}
-
-function copyViz(el) {
-  const text = el.innerText.replace('📋 點此複製','').trim();
-  navigator.clipboard.writeText(text).then(() => {
-    el.style.background = '#dcfce7';
-    el.innerHTML = '✅ 已複製！請貼到 Claude 對話框';
-  }).catch(() => {
-    // fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    el.style.background = '#dcfce7';
-    el.innerHTML = '✅ 已複製！請貼到 Claude 對話框';
-  });
 }
 
 
