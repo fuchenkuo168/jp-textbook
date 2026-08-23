@@ -120,6 +120,10 @@ ruby rt{font-size:.55em;color:var(--c-txt2)}
 .modal-content h3{font-size:20px;font-weight:600;margin-bottom:1rem}
 .modal-content textarea{width:100%;height:200px;padding:12px;border:1px solid var(--c-border);border-radius:var(--r);font-size:13px;font-family:'Courier New',monospace;resize:vertical;margin-bottom:1rem}
 .modal-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.viz-bar{margin-top:10px}
+.viz-btn{font-size:12px;padding:6px 14px;border-radius:var(--r);cursor:pointer;border:1px solid #93c5fd;background:#eff6ff;color:#1e40af;transition:all .2s}
+.viz-btn:hover{background:#dbeafe}
+.viz-area{margin-top:10px;padding:12px;background:var(--c-bg2);border-radius:var(--r);font-size:14px;line-height:1.8}
 .import-err{font-size:14px;color:#dc2626;margin-bottom:1rem;display:none}
 @media(max-width:768px){.vgrid,.ugrid{grid-template-columns:1fr}.logo{font-size:18px}}
 </style>
@@ -512,7 +516,16 @@ function rVocab(vocab) {
 // ── 渲染文法 ──
 function rGrammar(g) {
   if (!g.length) return '<div class="msg">此單元尚無文法資料</div>';
-  return g.map(x=>`<div class="gc"><div class="pat">${x.p}</div><div class="exp">${x.e}</div>${x.ex?`<div class="ex">${x.ex}${sa(x.et||x.ex)}</div>`:''}</div>`).join('');
+  return g.map(x=>`<div class="gc">
+    <div class="pat">${x.p}</div>
+    <div class="exp">${x.e}</div>
+    ${x.ex?`<div class="ex">
+      <div class="exl">例句</div>
+      ${x.ex}
+      ${x.ec?`<div class="exc">💬 ${x.ec}</div>`:''}
+      ${sa(x.et||x.ex)}
+    </div>`:''}
+  </div>`).join('');
 }
 
 // ── 渲染摘要 + 文章 ──
@@ -786,6 +799,48 @@ function doSearch(q) {
       <div class="sr-unit"><span class="tag">${r.type}</span> ${r.unit}</div>
       <div>${r.text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<span class="hl">${m}</span>`)}</div>
     </div>`).join('');
+}
+
+async function sendVizPrompt(btn, text) {
+  const bar = btn.parentElement;
+  const area = bar.querySelector('.viz-area');
+  btn.textContent = '⏳ 分析中...';
+  btn.disabled = true;
+  area.style.display = 'block';
+  area.textContent = '正在分析句子結構，請稍候...';
+
+  const prompt = `請用繁體中文，針對以下日文句子做詳細的語法圖解分析。
+
+句子：「${text}」
+
+請按以下格式回答：
+1. 【句子結構】把句子拆成各個成分（主語、述語、修飾語等），每個成分標上語法角色
+2. 【成分說明】每個成分的中文意思和語法說明
+3. 【全句翻譯】自然的中文翻譯
+4. 【重點語法】這句話用到的重要文法（一條一條說清楚）
+
+請用清楚的格式，讓N2學習者容易理解。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const result = data.content?.[0]?.text || '無法取得分析結果';
+    area.innerHTML = result.replace(/\n/g, '<br>').replace(/【(.+?)】/g, '<strong>【$1】</strong>');
+    btn.textContent = '📊 重新分析';
+    btn.disabled = false;
+  } catch(e) {
+    area.textContent = '⚠️ 分析失敗，請稍後再試。';
+    btn.textContent = '📊 視覺化圖解這段';
+    btn.disabled = false;
+  }
 }
 
 init();
