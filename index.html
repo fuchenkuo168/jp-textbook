@@ -838,47 +838,6 @@ function copyViz(el) {
   });
 }
 
-async function sendVizPrompt(btn, text) {
-  const bar = btn.parentElement;
-  const area = bar.querySelector('.viz-area');
-  btn.textContent = '⏳ 分析中...';
-  btn.disabled = true;
-  area.style.display = 'block';
-  area.textContent = '正在分析句子結構，請稍候...';
-
-  const prompt = `請用繁體中文，針對以下日文句子做詳細的語法圖解分析。
-
-句子：「${text}」
-
-請按以下格式回答：
-1. 【句子結構】把句子拆成各個成分（主語、述語、修飾語等），每個成分標上語法角色
-2. 【成分說明】每個成分的中文意思和語法說明
-3. 【全句翻譯】自然的中文翻譯
-4. 【重點語法】這句話用到的重要文法（一條一條說清楚）
-
-請用清楚的格式，讓N2學習者容易理解。`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const result = data.content?.[0]?.text || '無法取得分析結果';
-    area.innerHTML = result.replace(/\n/g, '<br>').replace(/【(.+?)】/g, '<strong>【$1】</strong>');
-    btn.textContent = '📊 重新分析';
-    btn.disabled = false;
-  } catch(e) {
-    area.textContent = '⚠️ 分析失敗，請稍後再試。';
-    btn.textContent = '📊 視覺化圖解這段';
-    btn.disabled = false;
-  }
-}
 
 init();
 </script>
